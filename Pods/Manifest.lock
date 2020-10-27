@@ -1,0 +1,36 @@
+PODS:
+  - JGProgressHUD (2.1)
+  - secux-paymentdevicekit (2.0.11)
+  - secux-paymentkit-v2 (2.0.14):
+    - secux-paymentdevicekit
+  - swiftScan (1.2.1)
+
+DEPENDENCIES:
+  - JGProgressHUD
+  - secux-paymentkit-v2
+  - swiftScan (from `https://github.com/MxABC/swiftScan.git`)
+
+SPEC REPOS:
+  trunk:
+    - JGProgressHUD
+    - secux-paymentdevicekit
+    - secux-paymentkit-v2
+
+EXTERNAL SOURCES:
+  swiftScan:
+    :git: https://github.com/MxABC/swiftScan.git
+
+CHECKOUT OPTIONS:
+  swiftScan:
+    :commit: 3aa69613dbd557924e7815d05fbe198c40ba9f3b
+    :git: https://github.com/MxABC/swiftScan.git
+
+SPEC CHECKSUMS:
+  JGProgressHUD: aa403e9a5b45cae98903c4600cccdd98c0c3ec90
+  secux-paymentdevicekit: 2cf0b774f879bc3b3a3bcd017827c1410c8fdf00
+  secux-paymentkit-v2: adb14247846483427b5dbfbcee59ede6ee447d67
+  swiftScan: 0849e7d7c1c641384767a573ee8cb90b88d1ddd9
+
+PODFILE CHECKSUM: 4c048c096c003059713c14fb5d4ee5cd836d731f
+
+COCOAPODS: 1.10.0.beta.2
