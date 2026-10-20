@@ -171,116 +171,21 @@ class CreateWalletAccountViewController: BaseViewController {
     }
     
     func generateWords(){
-    
-        /*
-        if let generatedWords = try? Mnemonic.generate(strength: Mnemonic.Strength.veryHigh){
-            let ret = generatedWords.joined(separator: " ")
-            seed = generatedWords
-            print("\(ret)")
-    
-        }
-        */
-        
-     
-        
+        // Display and derive from the same fresh phrase. Never log wallet secrets.
         let generatedWords = DSWallet.generateRandomSeed()
-        self.wordArray = generatedWords.components(separatedBy: " ")
-        print("\(generatedWords)")
-        
-        let seed = DSBIP39Mnemonic.sharedInstance()?.deriveKey(fromPhrase: "pupil wild pulp follow practice future upset donate trigger expand bachelor lucky permit board design", withPassphrase: nil)
-        print("\(seed?.hexDescription ?? "")")
-        
-        //let chain = DSChain.mainnet()
         let chain = DSChain.testnet()
-        
-        let wallet = DSWallet.standardWallet(withSeedPhrase: "pupil wild pulp follow practice future upset donate trigger expand bachelor lucky permit board design", setCreationDate: Date.timeIntervalBetween1970AndReferenceDate, for: chain, storeSeedPhrase: false, isTransient: false)
-        
-    
-        let account = wallet?.account(withNumber: 0)
-        
-        
-        //let derivationPath = account?.defaultDerivationPath
-        //let path = derivationPath?.privateKeyString(at: 0, internal: false, fromSeed: seed!)
-        //let bip44addrs = account?.bip44DerivationPath?.allChangeAddresses
-        
-        
-        print(account?.bip32DerivationPath?.stringRepresentation ?? "")
-        print(account?.bip44DerivationPath?.stringRepresentation ?? "")
-        
-        //let privkey1 = account?.bip44DerivationPath?.serializedExtendedPrivateKey(fromSeed: seed)
-        account?.bip44DerivationPath?.generateExtendedPublicKey(fromSeed: seed!, storeUnderWalletUniqueId: nil)
-        //let pubkey2 = account?.bip44DerivationPath?.serializedExtendedPublicKey()
-        
-        
-        var addressArr = [String]()
-        for i in 0 ... 10{
-            if let address = account?.bip44DerivationPath?.address(at: UInt32(i), internal: false){
-                print("\(i) \(address)")
-                addressArr.append(address)
-            }
+        guard let seed = DSBIP39Mnemonic.sharedInstance()?.deriveKey(fromPhrase: generatedWords, withPassphrase: nil),
+              let wallet = DSWallet.standardWallet(withSeedPhrase: generatedWords, setCreationDate: Date.timeIntervalBetween1970AndReferenceDate, for: chain, storeSeedPhrase: false, isTransient: false) else {
+            self.showMessage(title: "Create wallet failed!", message: "")
+            return
         }
-        
-        var pubkeyArr = [Data]()
-        for i in 0 ... 10{
-            if let pubkey = account?.bip44DerivationPath?.publicKeyData(at:UInt32(i), internal: false){
-                print("\(i) \(pubkey.hexDescription)")
-                pubkeyArr.append(pubkey)
-            }
-        }
-        
-        let privkeyArr = account?.bip44DerivationPath?.serializedPrivateKeys([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], internal: false, fromSeed: seed!)
-        for i in 0 ... 10{
-            print(privkeyArr![i])
-        }
-        
-        /*
-        //let deriPath = DSDerivationPath.init(serializedExtendedPrivateKey: privkeyArr![0] as! String, fundsType: DSDerivationPathType.authentication, signingAlgorithm: DSDerivationPathSigningAlgorith.ECDSA, on: chain)
-        //print(deriPath?.stringRepresentation ?? "")
-    
-        //let subpath = DSFundsDerivationPath.init(serializedExtendedPrivateKey: privkeyArr![0] as! String, fundsType: DSDerivationPathType.authentication, signingAlgorithm: DSDerivationPathSigningAlgorith.ECDSA, on: chain)
-        
-    
-        let ptr = UnsafeMutablePointer<UInt>.allocate(capacity: 5)
-        ptr[0] = UInt(44 | BIP32_HARD)
-        ptr[1] = UInt(5 | BIP32_HARD)
-        ptr[2] = UInt(0 | BIP32_HARD)
-        ptr[3] = 0
-        ptr[4] = 0
-        
-        let bip32path = DSFundsDerivationPath.init(indexes: ptr, length: 5, type: DSDerivationPathType.authentication, signingAlgorithm: DSDerivationPathSigningAlgorith.ECDSA, reference: DSDerivationPathReference.BIP32, on: chain)
-        
-        let pubkey = bip32path?.generateExtendedPublicKey(fromSeed: seed!, storeUnderWalletUniqueId: nil)
-       
-        let address = bip32path?.address(at: IndexPath(row:0, section:0))
-        
-        print(bip32path!.stringRepresentation)
-        print(bip32path?.serializedExtendedPublicKey())
-    
-        */
 
-        let root = DSDerivationPath.serializedPrivateMaster(fromSeed: seed, for: chain)
-        print("\(root ?? "")")
-        
-        //NSUInteger indexes[] = {FEATURE_PURPOSE_HARDENED, coinType | BIP32_HARD, 3 | BIP32_HARD, 1 | BIP32_HARD};
-        //return [DSAuthenticationKeysDerivationPath derivationPathWithIndexes:indexes length:4 type:DSDerivationPathType_Authentication signingAlgorithm:DSDerivationPathSigningAlgorith_ECDSA reference:DSDerivationPathReference_ProviderVotingKeys onChain:chain];
-   
-        //let derivationPath = 
-        //derivationPath.setAccount(account as! DSAccount)
-        
-        //let accountExtPK = derivationPath.serializedPrivateKeys(atIndexPaths: [IndexPath(row: 0, section: 0)], fromSeed: seed!)
-        
-        //print("\(accountExtPK)")
-        
-        //let path = DSFundsDerivationPath.bip44DerivationPath(on: chain, forAccountNumber: 0)
-        //path.address(at: IndexPath(row: 0, section: 0))
-        
-        
-        
-        
-        
-        
+        let account = wallet.account(withNumber: 0)
+        account?.bip44DerivationPath?.generateExtendedPublicKey(fromSeed: seed, storeUnderWalletUniqueId: nil)
+        self.wordArray = generatedWords.components(separatedBy: " ")
+        self.wordCollectionView.reloadData()
     }
-    
+
     @objc func nextButtonTapped(){
         
     }

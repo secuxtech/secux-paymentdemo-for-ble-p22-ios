@@ -178,18 +178,6 @@ class RestoreWalletAccountViewController: BaseViewController {
             wordArray.append("")
         }
         
-        wordArray[0] = "bar"
-        wordArray[1] = "course"
-        wordArray[2] = "harbor"
-        wordArray[3] = "bargain"
-        wordArray[4] = "load"
-        wordArray[5] = "magic"
-        wordArray[6] = "grunt"
-        wordArray[7] = "soldier"
-        wordArray[8] = "mean"
-        wordArray[9] = "initial"
-        wordArray[10] = "salad"
-        wordArray[11] = "fuel"
         
         let _ = self.restoreButton
         self.theTableView.reloadData()
@@ -201,66 +189,46 @@ class RestoreWalletAccountViewController: BaseViewController {
     
     @objc func restoreButtonTapped(){
         
-        var wordsPhrase = ""
-        for i in 0...11{
-            if let cell = self.theTableView.cellForRow(at: IndexPath(row: i, section: 0)) as? MnemonicWordTableViewCell{
-                if !cell.isValid{
-                    //self.showMessage(title: "Word \(i+1) is invalid!", message: "")
-                    //return
-                }
-            }
-            
-            wordsPhrase.append("\(self.wordArray[i]) ")
-        }
-        
-        
-        wordsPhrase = DSBIP39Mnemonic.sharedInstance()?.normalizePhrase(wordsPhrase) ?? ""
-        guard let seed = DSBIP39Mnemonic.sharedInstance()?.deriveKey(fromPhrase: wordsPhrase, withPassphrase: nil) else{
-            logw("generate seed failef")
-            self.showMessage(title: "Generate seed failed!", message: "")
+        // Commit the active text field before validating the complete phrase.
+        self.view.endEditing(true)
+        guard let mnemonic = DSBIP39Mnemonic.sharedInstance(),
+              self.wordArray.count == 12,
+              self.wordArray.allSatisfy({ !$0.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }),
+              let wordsPhrase = mnemonic.normalizePhrase(self.wordArray.joined(separator: " ")),
+              mnemonic.phraseIsValid(wordsPhrase) else {
+            self.showMessage(title: "Invalid recovery phrase!", message: "Enter all 12 words in the correct order.")
             return
         }
-        print("\(seed.hexDescription )")
+        let seed = mnemonic.deriveKey(fromPhrase: wordsPhrase, withPassphrase: nil)
 
-        //let chain = DSChain.mainnet()
         let chain = DSChain.testnet()
         let wallet = DSWallet.standardWallet(withSeedPhrase: wordsPhrase, setCreationDate: Date.timeIntervalBetween1970AndReferenceDate, for: chain, storeSeedPhrase: false, isTransient: false)
 
 
         let account = wallet?.account(withNumber: 0)
-        
-        print(account?.bip44DerivationPath?.stringRepresentation ?? "")
+
 
         account?.bip44DerivationPath?.generateExtendedPublicKey(fromSeed: seed, storeUnderWalletUniqueId: nil)
         
         var addressArr = [String]()
         for i in 0 ... 10{
             if let address = account?.bip44DerivationPath?.address(at: UInt32(i), internal: false){
-                print("\(i) \(address)")
+
                 addressArr.append(address)
             }
         }
         
-        var pubkeyArr = [Data]()
-        for i in 0 ... 10{
-            if let pubkey = account?.bip44DerivationPath?.publicKeyData(at:UInt32(i), internal: false){
-                print("\(i) \(pubkey.hexDescription)")
-                pubkeyArr.append(pubkey)
-            }
+        guard let address = addressArr.first else {
+            self.showMessage(title: "Restore wallet failed!", message: "")
+            return
         }
-        
-        let privkeyArr = account?.bip44DerivationPath?.serializedPrivateKeys([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10], internal: false, fromSeed: seed)
-        for i in 0 ... 10{
-            print(privkeyArr![i])
-        }
-        
-        
+
         let accManager = SecuXAccountManager()
-        let (ret, data) = accManager.bindNewAccount(coinType: "DASH", accountAddress: addressArr[0], name: "DASH-test1")
+        let (ret, data) = accManager.bindNewAccount(coinType: "DASH", accountAddress: address, name: "DASH-test1")
         if ret == SecuXRequestResult.SecuXRequestOK, let account = MyAccount.shared.theUserAccount{
             let _ = accManager.getCoinAccountList(userAccount: account)
             MyAccount.shared.setUserAccount(userAccount: account)
-            MyAccount.shared.updateCoinAddressAndSeedDict(address: addressArr[0], seed: seed)
+            MyAccount.shared.updateCoinAddressAndSeedDict(address: address, seed: seed)
         }else{
             var errorMsg = ""
             if let data = data, data.count > 0,
@@ -283,8 +251,7 @@ extension RestoreWalletAccountViewController: UITableViewDelegate, UITableViewDa
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        
-        print("item \(indexPath.row)")
+
         
         let cell = tableView.dequeueReusableCell(withIdentifier: MnemonicWordTableViewCell.cellIdentifier(), for:indexPath)
         //cell.selectionStyle = .none
@@ -302,7 +269,7 @@ extension RestoreWalletAccountViewController: UITableViewDelegate, UITableViewDa
 
 extension RestoreWalletAccountViewController: MnemonicWordTableViewCellDelegate{
     func inputWord(num: Int, word: String) {
-        print("inputWord \(num) \(word)")
+
         self.wordArray[num] = word
     }
     
