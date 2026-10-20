@@ -109,7 +109,7 @@ class MnemonicWordTableViewCell: UITableViewCell {
     var isValid = false
 
     func setup(num: Int, word: String){
-        print("setup \(num) \(word)")
+
         self.numLabel.text = "\(num + 1)."
         self.wordInput.placeholder = "Word #\(num + 1)"
         self.cellNum = num

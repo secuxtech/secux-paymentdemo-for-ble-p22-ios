@@ -74,13 +74,9 @@ class SecuXServerRequestHandler: RestRequestHandler {
             adminName = adminAccountName
             adminPwd = adminAccountPassword
         }else{
-            adminName = "secux_register"
-            adminPwd = "!secux_register@123"
-            if SecuXServerRequestHandler.baseURL.caseInsensitiveCompare("https://pmsweb.secuxtech.com") == .orderedSame{
-                adminPwd = "168!Secux@168"
-            }
+            return nil
         }
-        
+
         let param = ["account": adminName, "password":adminPwd]
         let (ret, data) = self.postRequestSync(urlstr: SecuXServerRequestHandler.adminLoginUrl, param: param)
         if ret == SecuXRequestResult.SecuXRequestOK, let tokenData = data{

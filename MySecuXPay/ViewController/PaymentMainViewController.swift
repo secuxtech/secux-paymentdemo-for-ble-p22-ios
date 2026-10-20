@@ -270,37 +270,7 @@ class PaymentMainViewController: BaseViewController {
         //self.navigationController?.
     }
     
-    /*
-    func getAccountInfo(){
-        let accountManager = SecuXAccountManager()
-        let theUserAccount = SecuXUserAccount(email: "maochuntest7@secuxtech.com", phone: "0975123456", password: "12345678")
-        
 
-        //Login test
-        var (ret, data) = accountManager.loginUserAccount(userAccount: theUserAccount)
-        guard ret == SecuXRequestResult.SecuXRequestOK else{
-            print("login failed!")
-            if let data = data{
-                print("Error: \(String(data: data, encoding: String.Encoding.utf8) ?? "")")
-            }
-            return
-        }
-        print("login done")
-        
-        //Get account balance
-        (ret, data) = accountManager.getAccountBalance(userAccount: theUserAccount)
-        guard ret == SecuXRequestResult.SecuXRequestOK else{
-            print("get balance failed!")
-            if let data = data{
-                print("Error: \(String(data: data, encoding: String.Encoding.utf8) ?? "")")
-            }
-            return
-        }
-        print("get account balance done")
-        
-        MyAccount.shared.setUserAccount(userAccount: theUserAccount)
-    }
-    */
     
     
 
